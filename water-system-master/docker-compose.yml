@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # 后端服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./water_system.db
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  # 前端服务
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  # MySQL数据库（可选，生产环境使用）
+  # mysql:
+  #   image: mysql:8.0
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root123
+  #     MYSQL_DATABASE: water_system
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+
+  # MQTT broker（可选，生产环境使用）
+  # mqtt:
+  #   image: emqx/emqx:latest
+  #   ports:
+  #     - "1883:1883"
+  #     - "8083:8083"
+  #   environment:
+  #     EMQX_NAME: mqtt-broker
+  #   volumes:
+  #     - mqtt_data:/opt/emqx/data
+
+# volumes:
+#   mysql_data:
+#   mqtt_data:
